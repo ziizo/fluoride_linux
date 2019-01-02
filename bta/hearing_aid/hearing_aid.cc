@@ -373,14 +373,10 @@ class HearingAidImpl : public HearingAid {
   }
 
   int GetDeviceCount() { return (hearingDevices.size()); }
-
   void OnGattConnected(tGATT_STATUS status, uint16_t conn_id,
                        tGATT_IF client_if, RawAddress address,
                        tBTA_TRANSPORT transport, uint16_t mtu) {
-    VLOG(2) << __func__ << ": address=" << address << ", conn_id=" << conn_id;
-    LOG(INFO)<< "CONNECTED COMPLETE";
-
-
+    LOG(INFO) << __func__ << ": address=" << address << ", conn_id=" << conn_id;
     HearingDevice* hearingDevice = hearingDevices.FindByAddress(address);
     if (!hearingDevice) {
       LOG(INFO) << "Skipping unknown device, address=" << address;
@@ -423,13 +419,21 @@ class HearingAidImpl : public HearingAid {
     // TODO(jpawlowski: for 16khz only 87 is required, optimize
     BTM_SetBleDataLength(address, 167);//this was original 167
 
+    BTM_SecBondByTransport(address, transport, 0, NULL, 0);
+
     tBTM_SEC_DEV_REC* p_dev_rec = btm_find_dev(address);
+    LOG(INFO) << "SEC_sTATE " << (int)p_dev_rec->sec_state;
+    LOG(INFO) << "link key is changed ?  " << p_dev_rec->link_key_changed;
+    LOG(INFO) << "lirole is master ??  " << p_dev_rec->role_master;
+
+
     if (p_dev_rec) {
       if (p_dev_rec->sec_state == BTM_SEC_STATE_ENCRYPTING ||
           p_dev_rec->sec_state == BTM_SEC_STATE_AUTHENTICATING) {
+    	    LOG(INFO)<< "security collision happens wait for encryption done ";
         /* if security collision happened, wait for encryption done
          * (BTA_GATTC_ENC_CMPL_CB_EVT) */
-        return;
+//        return;
       }
     }
 
@@ -445,6 +449,8 @@ class HearingAidImpl : public HearingAid {
 
     if (sec_flag & BTM_SEC_FLAG_LKEY_KNOWN) {
       /* if bonded and link not encrypted */
+	    LOG(INFO)<< "bonded but no encryption";
+
       sec_flag = BTM_BLE_SEC_ENCRYPT;
       BTM_SetEncryption(address, BTA_TRANSPORT_LE, encryption_callback, nullptr,
                         sec_flag);
@@ -452,6 +458,7 @@ class HearingAidImpl : public HearingAid {
     }
 
     /* otherwise let it go through */
+    LOG(INFO)<< "ENCRYPTION COMPLETE FROM HERE";
     OnEncryptionComplete(address, true);
   }
 
@@ -501,7 +508,6 @@ class HearingAidImpl : public HearingAid {
 
   void OnEncryptionComplete(const RawAddress& address, bool success) {
     HearingDevice* hearingDevice = hearingDevices.FindByAddress(address);
-    LOG(INFO)<< "ENCRYPTION COMPLETE";
     if (!hearingDevice) {
       DVLOG(2) << "Skipping unknown device" << address;
       return;
@@ -517,7 +523,7 @@ class HearingAidImpl : public HearingAid {
     }
     LOG(INFO)<< "ENCRYPTION COMPLETE WITHOUT ERRORS";
 
-    DVLOG(2) << __func__ << " " << address;
+   LOG(INFO)<< __func__ << " " << address;
 
     if (!hearingDevice->first_connection) {
       // Use cached data, jump to connecting socket
@@ -559,7 +565,7 @@ class HearingAidImpl : public HearingAid {
     }
 
     if (!service) {
-      LOG(ERROR) << "No Hearing Aid service found";
+      LOG(ERROR) << "No Hearing Aid service found close connection..";
       callbacks->OnConnectionState(ConnectionState::DISCONNECTED,
                                    hearingDevice->address);
       return;

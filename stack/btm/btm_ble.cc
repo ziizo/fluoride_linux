@@ -1605,7 +1605,7 @@ tBTM_STATUS btm_ble_start_encrypt(const RawAddress& bda, bool use_stk,
   tBTM_SEC_DEV_REC* p_rec = btm_find_dev(bda);
   BT_OCTET8 dummy_rand = {0};
 
-  BTM_TRACE_DEBUG("btm_ble_start_encrypt");
+  LOG(INFO) <<"btm_ble_start_encrypt";
 
   if (!p_rec) {
     BTM_TRACE_ERROR("Link is not active, can not encrypt!");
@@ -1646,6 +1646,7 @@ tBTM_STATUS btm_ble_start_encrypt(const RawAddress& bda, bool use_stk,
  *
  ******************************************************************************/
 void btm_ble_link_encrypted(const RawAddress& bd_addr, uint8_t encr_enable) {
+	LOG(INFO) << "LINK IS ENCRYPTED";
   tBTM_SEC_DEV_REC* p_dev_rec = btm_find_dev(bd_addr);
   bool enc_cback;
 

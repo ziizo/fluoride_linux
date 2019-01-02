@@ -1047,6 +1047,7 @@ tBTM_STATUS btm_sec_bond_by_transport(const RawAddress& bd_addr,
 tBTM_STATUS BTM_SecBondByTransport(const RawAddress& bd_addr,
                                    tBT_TRANSPORT transport, uint8_t pin_len,
                                    uint8_t* p_pin, uint32_t trusted_mask[]) {
+	LOG(INFO) << "perform bonding with peer device";
   tBT_DEVICE_TYPE dev_type;
   tBLE_ADDR_TYPE addr_type;
 

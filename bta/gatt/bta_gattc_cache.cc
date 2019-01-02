@@ -716,8 +716,8 @@ bool bta_gattc_cache_load(tBTA_GATTC_CLCB* p_clcb) {
 
   FILE* fd = fopen(fname, "rb");
   if (!fd) {
-    LOG(ERROR) << __func__ << ": can't open GATT cache file " << fname
-               << " for reading, error: " << strerror(errno);
+//    LOG(ERROR) << __func__ << ": can't open GATT cache file " << fname
+//               << " for reading, error: " << strerror(errno);
     return false;
   }
 

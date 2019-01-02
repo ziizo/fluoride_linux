@@ -802,6 +802,7 @@ void bta_dm_remove_all_acl(const tBTA_DM_LINK_TYPE link_type) {
 
 /** Bonds with peer device */
 void bta_dm_bond(const RawAddress& bd_addr, tBTA_TRANSPORT transport) {
+	LOG(INFO) << "  Bonds with peer device ";
   tBTM_STATUS status;
   tBTA_DM_SEC sec_event;
   char* p_name;

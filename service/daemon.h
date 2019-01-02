@@ -63,6 +63,8 @@ class Daemon {
 
   virtual bool SetScanEnable(bool scan_enable) = 0;
   virtual bool CreateBond(const std::string& device_address, int transport) = 0;
+  virtual bool RemoveBond(const std::string& device_address) = 0;
+
 
   	  	  	  	  	  	  /************ HA *********/
 

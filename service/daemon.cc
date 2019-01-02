@@ -33,12 +33,12 @@
 using bluetooth::hearing_aid::ConnectionState;
 using bluetooth::hearing_aid::HearingAidInterface;
 //extern HearingAidInterface* btif_hearing_aid_get_interface();
-
+int flag_bond_conn = 1;
 namespace bluetooth {
 
 namespace {
-const std::string DesiredDeviceName = "nimble-bleprph"; //Synopsys_BLE_Dev  OPPO A57 nimble-bleprph nimble_server
-const std::string DesiredDeviceAddress = "xx:xx:xx:xx:xx:xx";
+const std::string DesiredDeviceName = "nimble_server"; //Synopsys_BLE_Dev  OPPO A57 nimble-bleprph nimble_server
+const std::string DesiredDeviceAddress = "00:00:99:99:00:00";
 
 // The global Daemon instance.
 Daemon* g_daemon = nullptr;
@@ -63,6 +63,9 @@ class DaemonImpl : public Daemon, public ipc::IPCManager::Delegate ,
   bool CreateBond(const std::string& device_address, int transport) override {
 	  return adapter_->CreateBond(device_address,transport);
   }
+  bool RemoveBond(const std::string& device_address) override {
+ 	  return adapter_->RemoveBond(device_address);
+   }
   virtual void OnConnectionState(ConnectionState state,
                                  const RawAddress& address) override {
 	  LOG(INFO) << "DEVICE IS  " << (int)state ;
@@ -204,6 +207,14 @@ class DaemonImpl : public Daemon, public ipc::IPCManager::Delegate ,
   	}
     // Default implementation does nothing
   }
+  void OnDeviceConnectionStateChanged(
+          Adapter* adapter, const std::string& device_address, bool connected) override {
+	  if(connected && flag_bond_conn){
+//		  RemoveBond(DesiredDeviceAddress);
+		  flag_bond_conn = 0;
+	  }
+
+  }
   void OnDeviceFound(Adapter* adapter,
                      const RemoteDeviceProps& props) override {
 	  	LOG(INFO) << "device found Daemon impl";
@@ -219,7 +230,7 @@ class DaemonImpl : public Daemon, public ipc::IPCManager::Delegate ,
 //	    }
         RawAddress bd_addr;
         RawAddress::FromString(props.address(),bd_addr);
-	    HearingAid_iface->Connect(bd_addr);
+	      HearingAid_iface->Connect(bd_addr);
 
 	  	}
   }
